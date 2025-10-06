@@ -1,0 +1,35 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Services;
+
+use FriendsOfHyperf\Mail\Facade\Mail;
+
+use function Hyperf\Support\env;
+
+class MailService
+{
+    public function sendWithdrawReceipt(
+        string $toEmail,
+        float $amount,
+        array $pix,
+        \DateTimeInterface $when,
+        string $withdrawalId
+    ): void {
+        if ($toEmail === '') return;
+
+        $subject = sprintf('Saque PIX confirmado (%s)', $withdrawalId);
+        $body = sprintf(
+            "Saque efetuado em %s\nValor: R$ %.2f\nPIX: %s (%s)\n",
+            $when->format('Y-m-d H:i:s'),
+            $amount,
+            $pix['key'] ?? '-',
+            $pix['type'] ?? '-'
+        );
+
+        Mail::mailer(env('MAIL_MAILER','smtp'))->raw($body, function ($m) use ($toEmail, $subject) {
+            $m->to($toEmail);
+            $m->subject($subject);
+        });
+    }
+}

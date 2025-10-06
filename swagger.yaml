@@ -1,0 +1,192 @@
+
+openapi: 3.0.3
+info:
+  title: TecnoFit PIX API (derivada estritamente das anotações do AccountWithdrawController.php)
+  version: "1.0.0"
+
+paths:
+  /api/withdraw/{accountId}/balance/withdraw:
+    post:
+      tags: ["Saques"]
+      summary: "Cria ou agenda um pedido de saque."
+      description: "Processa a criação de um pedido de saque imediato ou agendado, opcionalmente garantindo idempotência."
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: "ID da conta bancária/cliente (UUID) de onde o saque será feito."
+          schema: { type: string, format: uuid, example: "3cf61147-436e-4219-b92b-cbe8d7d58fd7" }
+        - name: Idempotency-Key
+          in: header
+          required: false
+          description: "Chave única para garantir que a operação não seja duplicada (Idempotência)."
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [method, pix, amount]
+              properties:
+                method:
+                  type: string
+                  enum: ["PIX"]
+                  description: "Método de saque. Atualmente, apenas PIX."
+                  example: "PIX"
+                pix:
+                  type: object
+                  required: [type, key]
+                  properties:
+                    type:
+                      type: string
+                      enum: ["cpf", "cnpj", "email", "phone", "evp"]
+                      example: "email"
+                    key:
+                      type: string
+                      example: "fulano@email.com"
+                amount:
+                  type: number
+                  format: float
+                  description: "Valor do saque (BRL)."
+                  example: 1.00
+                schedule:
+                  type: string
+                  format: date-time
+                  nullable: true
+                  description: "Data/hora para agendamento. Se nulo, saque é imediato."
+                  example: "2025-10-06 00:00:00"
+      responses:
+        "200":
+          description: "Pedido de saque processado com sucesso."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: integer, example: 200 }
+                  message: { type: string, example: "Saque PIX confirmado (e5be9a618ab4631dbc85047fde246510)" }
+        "400":
+          description: "Erro de validação ou de negócio."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: integer, example: 400 }
+                  message: { type: string, example: "Sem saldo para a operação de saque." }
+
+  /api/withdraw/{accountId}/balance:
+    get:
+      tags: ["Saldo"]
+      summary: "Consulta o saldo da conta PIX para saque."
+      description: "Retorna o saldo atual disponível para saque na conta especificada."
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: "ID da conta bancária/cliente (UUID)."
+          schema: { type: string, format: uuid, example: "3cf61147-436e-4219-b92b-cbe8d7d58fd7" }
+      responses:
+        "200":
+          description: "Saldo retornado com sucesso."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  account_id: { type: string, format: uuid, description: "ID da conta consultada." }
+                  balance: { type: integer, description: "Saldo disponível em centavos (o valor 999.63)." }
+        "400":
+          description: "Erro de validação ou de negócio."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: integer, example: 400 }
+                  message: { type: string, example: "Conta não encontrada." }
+
+  /account/{accountId}/withdrawals:
+    get:
+      tags: ["Listar saques"]
+      summary: "Lista os pedidos de saque de uma conta."
+      description: "Retorna uma lista de pedidos de saque para o accountId especificado, com filtro opcional por status."
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: "ID da conta bancária/cliente (UUID)."
+          schema: { type: string, format: uuid, example: "3cf61147-436e-4219-b92b-cbe8d7d58fd7" }
+        - name: status
+          in: query
+          required: false
+          description: "Filtra por status."
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Lista de pedidos de saque retornada com sucesso."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:            { type: string, description: "ID único do saque." }
+                    account_id:    { type: string, description: "ID da conta de origem." }
+                    method:        { type: string, description: "Método de saque." }
+                    amount:        { type: string, description: "Valor do saque (string na listagem)." }
+                    scheduled:     { type: integer, description: "1 se agendado, 0 caso contrário." }
+                    scheduled_for: { type: string, format: date-time, description: "Data e hora do agendamento." }
+                    done:          { type: integer, description: "1 se concluído, 0 caso contrário." }
+                    error:         { type: integer, description: "1 se falhou, 0 caso contrário." }
+                    error_reason:  { type: string, nullable: true, description: "Razão do erro, se houver." }
+                    created_at:    { type: string, format: date-time, description: "Timestamp de criação." }
+                    updated_at:    { type: string, format: date-time, description: "Timestamp de atualização." }
+        "400":
+          description: "Erro de validação ou de negócio."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: integer, example: 400 }
+                  message: { type: string, example: "Conta não encontrada." }
+
+  /api/withdraw/{accountId}/cancel/{withdrawId}:
+    get:
+      tags: ["Saques"]
+      summary: "Cancela um pedido de saque agendado (uso de GET para alteração de estado)."
+      description: "Cancela um pedido de saque previamente agendado. Embora a operação modifique o estado do recurso, ela usa o método HTTP GET."
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: "ID da conta bancária/cliente (UUID)."
+          schema: { type: string, format: uuid, example: "3cf61147-436e-4219-b92b-cbe8d7d58fd7" }
+        - name: withdrawId
+          in: path
+          required: true
+          description: "ID único do saque a ser cancelado."
+          schema: { type: string, format: uuid, example: "dba226e93248483130f5dc0db4ac7ecc" }
+      responses:
+        "200":
+          description: "Pedido de saque cancelado com sucesso."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: "cancelled", description: "Status do cancelamento." }
+                  withdrawal_id: { type: string, format: uuid, description: "ID do saque cancelado." }
+        "400":
+          description: "Erro de validação ou de negócio."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: integer, example: 400 }
+                  message: { type: string, example: "Conta não encontrada." }

@@ -1,0 +1,59 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Services;
+
+use App\Repositories\Contracts\WithdrawalRepository;
+use Hyperf\DbConnection\Db;
+use DomainException;
+
+class ScheduledWithdrawService
+{
+    public function __construct(private WithdrawalRepository $withdrawals) {}
+
+    public function cancel(string $accountId, string $withdrawalId): void
+    {
+        Db::beginTransaction();
+        try {
+            $ok = $this->withdrawals->cancelIfPending($withdrawalId, $accountId);
+            if (!$ok) {
+                Db::rollBack();
+                throw new DomainException('Agendamento não pode ser cancelado.');
+            }
+            Db::commit();
+        } catch (\Throwable $e) {
+            Db::rollBack();
+            throw $e;
+        }
+    }
+
+    // placeholder para cron de finalizar pendentes via fila, se desejar
+    public function noop(): void {}
+}
+
+/*
+use Hyperf\DbConnection\Db;
+use Brick\Math\BigDecimal; // ver nota $ sobre dinheiro
+
+Db::transaction(function () use ($row) {
+    $acc = Account::query()
+        ->whereKey($row->account_id)
+        ->lockForUpdate()
+        ->firstOrFail();
+
+    // $: dinheiro — evite float; use decimal como string/BigDecimal
+    $balance  = BigDecimal::of((string) $acc->balance);
+    $withdraw = BigDecimal::of((string) $row->amount);
+
+    if ($balance->isLessThan($withdraw)) {
+        throw new \DomainException('Saldo insuficiente para concluir o saque agendado.');
+    }
+
+    // debita e persiste
+    $acc->balance = (string) $balance->minus($withdraw); // se sua coluna é DECIMAL, salve como string
+    $acc->save();
+
+    // ... demais efeitos (criar transação, marcar scheduled como concluído, etc.)
+});
+
+*/
