@@ -18,7 +18,7 @@ class AccountSeeder extends Seeder
             [
                 'id' => '3cf61147-436e-4219-b92b-cbe8d7d58fd7',
                 'name' => 'Ricardo Voyceik',
-                'balance' => 1.00,
+                'balance' => 100.00,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
             ],

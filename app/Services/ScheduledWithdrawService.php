@@ -28,7 +28,6 @@ class ScheduledWithdrawService
     public function create(array $dto): array
     {
         $scheduled = !empty($dto['schedule']);
-        $withdrawalId = $this->withdrawals->create($dto);
 
         if ($scheduled) {
   
@@ -45,9 +44,9 @@ class ScheduledWithdrawService
             Db::beginTransaction();
             try {
                 $acc = $this->accounts->findForUpdate($dto['account_id']);
-                Db::commit();
                 if (!$acc) throw new DomainException('Conta não encontrada.');
-
+                $withdrawalId = $this->withdrawals->create($dto);
+                Db::commit();
             } catch (\Throwable $e) {
                 Db::rollBack();
                 throw $e;

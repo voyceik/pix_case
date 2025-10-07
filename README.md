@@ -20,7 +20,7 @@ Instalar todas as dependências utilizadas neste projeto, para isso execute `doc
 
 Inicializar o banco de dados com as tabelas necessárias, então execute `docker container exec -it hyperf-skeleton-service php bin/hyperf.php migrate --seed`.
 
-## Depuracao, Observabilidade e Segurança
+## Depuração, Observabilidade e Segurança
 
 Utilize o comando `docker compose logs -f` para observar as mensagens de logs enviadas para o log do console dos containeres, por exemplo:
 
@@ -47,6 +47,8 @@ O arquivo `Insomnia.yaml` na pasta do projeto contém os requests para os endpoi
 O arquivo `swagger.yaml` na pasta do projeto contém os requests para os endpoint deste projeto para utilizar no Swagger (veja em `https://editor.swagger.io`).
 
 Como o objetivo deste case é demonstrar a facilidade da criação de APIs utilizando mapeadmento de endpoints por anotações (não utiliza routes.php), processamento assíncrono de tarefas, verificação de  solicitaçoes agendadas via cron, entre outras funcionalidades do Hyperf, não foi utilizada a arquitetura de desenvolvimento direcionada a domínio (Domain-Driven Design, ou DDD), a qual explora no foca de domínio do negócio.
+
+Também não está sendo tratado autenticação JWT, para facilitar a usabilidade e testes do Case.
 
 ## Regras de negócio implementadas
 
