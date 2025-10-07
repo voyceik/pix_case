@@ -98,7 +98,31 @@ curl --request GET \
 ```
 ## Execução
 
-Clonar o projeto para uma pasta local e execute na pasta `docker compose up -d`. 
 
-Para iniciar o banco de dados com as tabelas deste Case criadas, execute a seguir `docker container exec -it hyperf-skeleton-service php bin/hyperf.php migrate --seed`
+Após clonar o projeto (ou baixar e descopactar o arquivo `pix_case.zip` fornecido pelo github) para uma pasta local, dentro dessa pasta, crie um arquivo de configuração `.env` a partir do exemplo `.env.sample` (`cp .env.example .env`) e `docker compose up -d`. 
+
+Instalar todas as dependencias utilizadas no Case execute `docker container exec -it hyperf-skeleton-service composer install -o`.
+
+Iniciar o banco de dados com as tabelas deste Case execute `docker container exec -it hyperf-skeleton-service php bin/hyperf.php migrate --seed`
+
+## Depuracao, Observacibilidade e Segurança
+
+Utilize o comando `docker compose logs -f` para observar as mensagens de logs enviadas para o log do console dos containeres, por exemplo:
+
+```log
+hyperf-skeleton-service  | [DEBUG] Current microtime: 1759817280 0.01628500. Crontab dispatcher sleep 59.984s.
+hyperf-skeleton-service  | [2025-10-07 14:08:00] hyperf.INFO: ProcessDue  {"started_at":"2025-10-07 03:08:00"} []
+hyperf-skeleton-service  | [DEBUG] Event Hyperf\Framework\Event\OnPipeMessage handled by Hyperf\Crontab\Listener\OnPipeMessageListener listener.
+hyperf-skeleton-service  | [2025-10-07 14:08:00] sql.INFO: [18.14] select * from `account_withdraw` where `scheduled` = '1' and `done` = '' and `scheduled_for` <= '2025-10-07 03:08:00' order by `scheduled_for` asc limit 100 for update skip locked [] []
+hyperf-skeleton-service  | [DEBUG] Event Hyperf\Database\Events\QueryExecuted handled by App\Listener\DbQueryExecutedListener listener.
+hyperf-skeleton-service  | [2025-10-07 14:08:00] hyperf.INFO: ProcessDue  {"finished_at":"2025-10-07 03:08:00","processed":0} []
+hyperf-skeleton-service  | [INFO] Crontab task [finish-pending-withdrawals] executed successfully at 2025-10-07 14:08:00.
+```
+
+Onde permite visualizar a execução da cron a cada minuto para verificar os saques agendados pendentes de termino, os SQLs efetuados no banco de dados, o monitoramento do enfileramento/envio de e-mail para o serviço de smtp, etc.
+
+Se desejar ativar o `watcher` (que atualiza em tempo real as alterações realizadas na pasta local, durante o desenvolvimento do projeto) altere o endpoint no arquivo docker-composer.yml para `entrypoint: ["php", "bin/hyperf.php", "server:watch"]`.
+
+As rotas `/account/{accountId}/balance` e `/account/{accountId}/withdrawals` foram criadas para facilitar a depuracão em desenvolvimento, evitanto a necessidade de executar comandos SQL diretamente no servidor de banco de dados.
+
 

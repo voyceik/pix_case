@@ -1,9 +1,13 @@
 services:
   hyperf-skeleton-service:
     container_name: hyperf-skeleton-service
-    image: hyperf/hyperf:8.3-alpine-v3.22-swoole
+    image: hyperf-skeleton
+    build:
+      context: .
     volumes:
       - ./:/srv
+      - vendor:/srv/vendor
+      - runtime:/srv/runtime
     ports:
       - "9501:9501"   # HYPERF
     environment:
@@ -21,7 +25,7 @@ services:
       MAIL_FROM_ADDRESS: "no-reply@tecnofit.local"
       MAIL_FROM_NAME: "TecnoFit PIX"
     working_dir: /srv
-    entrypoint: ["php", "bin/hyperf.php", "server:watch"]
+    entrypoint: ["php", "bin/hyperf.php", "start"]
     depends_on:
       - hyperf-skeleton-mysql
       - hyperf-skeleton-redis
@@ -62,3 +66,5 @@ volumes:
     driver: local  
   redis_volume:
     driver: local
+  vendor:
+  runtime:
