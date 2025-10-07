@@ -99,9 +99,11 @@ curl --request GET \
 ## Execução
 
 
-Após clonar o projeto (ou baixar e descopactar o arquivo `pix_case.zip` fornecido pelo github) para uma pasta local, dentro dessa pasta, crie um arquivo de configuração `.env` a partir do exemplo `.env.sample` (`cp .env.example .env`) e `docker compose up -d`. 
+Após clonar o projeto (ou baixar e descopactar o arquivo `pix_case.zip` fornecido pelo github) para uma pasta local, dentro dessa pasta, crie um arquivo de configuração `.env` a partir do exemplo `.env.example` (`cp .env.example .env`).
 
-Instalar todas as dependencias utilizadas no Case execute `docker container exec -it hyperf-skeleton-service composer install -o`.
+Criar e subir os containers do projeto com o comando `docker compose up -d`. 
+
+Instalar todas as dependências utilizadas neste projeto, para isso execute `docker container exec -it hyperf-skeleton-service composer install -o`.
 
 Iniciar o banco de dados com as tabelas deste Case execute `docker container exec -it hyperf-skeleton-service php bin/hyperf.php migrate --seed`
 
@@ -119,10 +121,16 @@ hyperf-skeleton-service  | [2025-10-07 14:08:00] hyperf.INFO: ProcessDue  {"fini
 hyperf-skeleton-service  | [INFO] Crontab task [finish-pending-withdrawals] executed successfully at 2025-10-07 14:08:00.
 ```
 
-Onde permite visualizar a execução da cron a cada minuto para verificar os saques agendados pendentes de termino, os SQLs efetuados no banco de dados, o monitoramento do enfileramento/envio de e-mail para o serviço de smtp, etc.
+No qual permite visualizar a execução da cron a cada minuto para verificar os saques agendados pendentes de termino, os SQLs efetuados no banco de dados, o monitoramento do enfileramento/envio de e-mail para o serviço de smtp, etc.
 
 Se desejar ativar o `watcher` (que atualiza em tempo real as alterações realizadas na pasta local, durante o desenvolvimento do projeto) altere o endpoint no arquivo docker-composer.yml para `entrypoint: ["php", "bin/hyperf.php", "server:watch"]`.
 
+### Observações
+
 As rotas `/account/{accountId}/balance` e `/account/{accountId}/withdrawals` foram criadas para facilitar a depuracão em desenvolvimento, evitanto a necessidade de executar comandos SQL diretamente no servidor de banco de dados.
 
+O arquivo `Insomnia.yaml` na pasta do projeto contém os requests para os endpoint desse projeto para utilizar no Insomnia (veja em `https://insomnia.rest`).
 
+O arquivo `swagger.yaml` na pasta do projeto contém os requests para os endpoint deste projeto para utilizar no Swagger (veja em `https://editor.swagger.io`).
+
+Como o objetivo deste case é demonstrar a facilidade da criação de APIs utilizando mapeadmento de endpoints por anotações (não utiliza routes.php), processamento assíncrono de tarefas, verificação de  solicitaçoes agendadas via cron, entre outras funcionalidades do Hyperf, não foi utilizada a arquitetura de desenvolvimento direcionada a domínio (Domain-Driven Design, ou DDD), a qual explora no foca de domínio do negócio.

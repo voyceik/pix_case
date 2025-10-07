@@ -1,7 +1,7 @@
 
 openapi: 3.0.3
 info:
-  title: TecnoFit PIX API (derivada estritamente das anotações do AccountWithdrawController.php)
+  title: Case PIX API (derivada estritamente das anotações do AccountWithdrawController.php)
   version: "1.0.0"
 
 paths:
