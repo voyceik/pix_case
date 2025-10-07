@@ -121,7 +121,8 @@ class ScheduledWithdrawService
                     ->where('account_withdraw_id', $withdrawalId)
                     ->first();
 
-                $this->mail->queueWithdrawReceipt((string) $pix->key, $amount, ['type' => $pix->type ?? 'email', 'key' => $pix->key], new \DateTimeImmutable(), $withdrawalId);
+                $when = new \DateTimeImmutable('now', new \DateTimeZone(env('TZ', 'America/Sao_Paulo')));    
+                $this->mail->queueWithdrawReceipt((string) $pix->key, $amount, ['type' => $pix->type ?? 'email', 'key' => $pix->key], $when, $withdrawalId);
 
             } catch (\Throwable $e) {
                 Db::rollBack();
