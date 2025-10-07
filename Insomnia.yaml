@@ -1,0 +1,169 @@
+type: collection.insomnia.rest/5.0
+name: TecnoFit – Saque PIX (Hyperf)
+meta:
+  id: wrk_54a1cc644ade4884b449038fcdbfa782
+  created: 1759583442209
+  modified: 1759583442209
+  description: ""
+collection:
+  - name: Saque PIX
+    meta:
+      id: fld_0298e11066af40978758426a2d9ddd2d
+      created: 1759581725462
+      modified: 1759679132604
+      sortKey: 1759581725462
+      description: ""
+    children:
+      - url: "{{ baseUrl }}/account/{{ accountId }}/balance"
+        name: Saldo
+        meta:
+          id: req_0b52a36a218f477fa5943a7d3ee39ae2
+          created: 1759581725462
+          modified: 1759678406695
+          isPrivate: false
+          description: ""
+          sortKey: 1759581725462
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ baseUrl }}/"
+        name: Healthcheck
+        meta:
+          id: req_90bcb50ce8074b19b3cbe7446e648c62
+          created: 1759581725462
+          modified: 1759690780872
+          isPrivate: false
+          description: ""
+          sortKey: 1759581725462
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ baseUrl }}/account/{{ accountId }}/balance/withdraw"
+        name: Saque imediato
+        meta:
+          id: req_a4cb047ea09c4e58850729dd293ad711
+          created: 1759581725463
+          modified: 1759790320549
+          isPrivate: false
+          description: ""
+          sortKey: 1759581725463
+        method: POST
+        body:
+          mimeType: application/json
+          text: '{"method": "PIX", "pix": {"type": "email", "key": "test@test.com"},
+            "amount": 10.00, "schedule": null}'
+        headers:
+          - name: Content-Type
+            value: application/json
+            id: pair_696ff867f52c4a21a51ebb7e2e2d9ff9
+          - name: Idempotency-Key
+            value: "{{ idempotencyKey }}"
+            id: pair_9aa88e65a1a44cd49677684c243efbd2
+            disabled: true
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ baseUrl }}/account/{{ accountId }}/balance/withdraw"
+        name: Saque agendado
+        meta:
+          id: req_c188496a73a443b295e97fc35027649e
+          created: 1759581725463
+          modified: 1759763084757
+          isPrivate: false
+          description: ""
+          sortKey: 1759581725463
+        method: POST
+        body:
+          mimeType: application/json
+          text: '{"method": "PIX", "pix": {"type": "email", "key": "test@test.com"},
+            "amount": 50.00, "schedule": "{{ scheduleDate }}"}'
+        headers:
+          - name: Content-Type
+            value: application/json
+            id: pair_64255d7e030e44f292dfa0df3a7b12de
+          - id: pair_9527f6205e0546b19d04a6997d4b7269
+            name: Idempotency-Key
+            value: "{{ idempotencyKey }}"
+            description: ""
+            disabled: true
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ baseUrl }}/account/{{ accountId }}/cancel/{{ withdrawalId }}"
+        name: Cancelar agendamento
+        meta:
+          id: req_cc3a2f302edb4f2da07399579f6ddde8
+          created: 1759581725463
+          modified: 1759680303502
+          isPrivate: false
+          description: ""
+          sortKey: 1759581725464
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ baseUrl }}/account/{{ accountId }}/withdrawals?status="
+        name: Saques
+        meta:
+          id: req_70e89b1c09cf44f892fc84256dc9cf4a
+          created: 1759673868807
+          modified: 1759785374818
+          isPrivate: false
+          description: ""
+          sortKey: 1759581725462.5
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_764f7f6bfad9a865e70908891085436e8f985ddf
+    created: 1759583442217
+    modified: 1759583442217
+environments:
+  name: Base Environment
+  meta:
+    id: env_066043932005496e9fc63c68f0f22c90
+    created: 1759581725462
+    modified: 1759785411454
+    isPrivate: false
+  data:
+    baseUrl: http://127.0.0.1:9501
+    accountId: 3cf61147-436e-4219-b92b-cbe8d7d58fd7
+    withdrawalId: ba2e813e16c220cedda2796e384396b2
+    idempotencyKey: acct-b5c478a9-4b1f-4c8d-8e4d-61f2f8a9e4d1
+    scheduleDate: 2025-10-06 18:30:00
+    swaggerUrl: http://127.0.0.1:9500
